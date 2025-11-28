@@ -33,7 +33,7 @@
 #include <sched.h>
 #if TS_USE_HWLOC
 #include "tscore/ink_hw.h"
-#if USE_NUMA
+#if TS_USE_NUMA
 #include <hwloc/glibc-sched.h>
 #endif
 #endif

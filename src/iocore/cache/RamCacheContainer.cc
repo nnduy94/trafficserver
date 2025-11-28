@@ -21,6 +21,8 @@
   limitations under the License.
  */
 
+#include "tscore/ink_platform.h"
+
 #if TS_USE_NUMA
 
 #include "P_Cache.h"
