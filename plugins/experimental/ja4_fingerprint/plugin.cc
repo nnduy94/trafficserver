@@ -92,13 +92,10 @@ get_log_handle()
   return log_handle;
 }
 
-static constexpr TSPluginRegistrationInfo
+static TSPluginRegistrationInfo const &
 get_registration_info()
 {
-  TSPluginRegistrationInfo info;
-  info.plugin_name   = PLUGIN_NAME;
-  info.vendor_name   = PLUGIN_VENDOR;
-  info.support_email = PLUGIN_SUPPORT_EMAIL;
+  static TSPluginRegistrationInfo info{PLUGIN_NAME, PLUGIN_VENDOR, PLUGIN_SUPPORT_EMAIL};
   return info;
 }
 
@@ -128,7 +125,7 @@ TSPluginInit(int /* argc ATS_UNUSED */, char const ** /* argv ATS_UNUSED */)
 bool
 register_plugin()
 {
-  constexpr auto info{get_registration_info()};
+  auto const &info = get_registration_info();
   return (TS_SUCCESS == TSPluginRegister(&info));
 }
 

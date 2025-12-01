@@ -703,9 +703,26 @@ EThread::get_numa_node()
 {
 #if TS_USE_NUMA
   if (this->numa_node == -1) {
-    unsigned int cpu, node;
-    getcpu(&cpu, &node);
-    this->numa_node = node;
+    int cpu = ::sched_getcpu();
+    if (cpu >= 0) {
+#if TS_USE_HWLOC
+      hwloc_topology_t topo = ink_get_topology();
+      hwloc_cpuset_t   set  = hwloc_bitmap_alloc();
+      if (set != nullptr) {
+        hwloc_bitmap_only(set, static_cast<unsigned>(cpu));
+        hwloc_obj_t obj = hwloc_get_next_obj_covering_cpuset_by_type(topo, set, HWLOC_OBJ_NUMANODE, nullptr);
+        if (obj != nullptr) {
+          this->numa_node = static_cast<int>(obj->logical_index);
+        }
+        hwloc_bitmap_free(set);
+      }
+#endif
+      if (this->numa_node == -1) {
+        this->numa_node = 0;
+      }
+    } else {
+      this->numa_node = 0;
+    }
   }
 #endif
   return this->numa_node;

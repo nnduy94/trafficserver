@@ -86,7 +86,7 @@ void
 RamCacheContainer::init_one_cache()
 {
   unsigned int my_node = 0;
-  getcpu(nullptr, &my_node);
+  my_node = static_cast<unsigned int>(this_ethread()->get_numa_node());
   if (caches[my_node]) {
     ink_error("Attempt to double-init duplicated cache!");
   } else {
@@ -201,7 +201,7 @@ int
 RamCacheContainer::get(CryptoHash *key, Ptr<IOBufferData> *ret_data, uint64_t auxkey)
 {
   unsigned int my_node = 0;
-  getcpu(nullptr, &my_node);
+  my_node = static_cast<unsigned int>(this_ethread()->get_numa_node());
   // Do we have it?
   RamCache *my_cache = get_cache(my_node, my_node);
   if (!my_cache)
@@ -281,7 +281,7 @@ RamCacheContainer::put(CryptoHash *key, IOBufferData *data, uint32_t len, bool c
   check_pages_consistency(data->data(), len, "Check 1");
 #endif
   unsigned int my_node = 0;
-  getcpu(nullptr, &my_node);
+  my_node = static_cast<unsigned int>(this_ethread()->get_numa_node());
 
   NUMA_CHECK(data->data(), len);
   move_pages_to_numa_zone(data->data(), len, my_node);
@@ -295,7 +295,7 @@ int
 RamCacheContainer::fixup(const CryptoHash *key, uint64_t old_auxkey, uint64_t new_auxkey)
 {
   unsigned int my_node = 0;
-  getcpu(nullptr, &my_node);
+  my_node = static_cast<unsigned int>(this_ethread()->get_numa_node());
   for (size_t i = 0; i < caches.size(); i++) {
     RamCache *cache = get_cache(my_node, i);
     if (cache) {

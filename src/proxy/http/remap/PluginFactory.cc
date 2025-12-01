@@ -194,7 +194,8 @@ PluginFactory::getRemapPlugin(const fs::path &configPath, int argc, char **argv,
       runtimePath /= effectivePath.relative_path();
 
       // Special case for Cripts
-      if (!runtimePath.string().ends_with(".so")) {
+      auto const runtime_str = runtimePath.string();
+      if (!(runtime_str.size() >= 3 && runtime_str.compare(runtime_str.size() - 3, 3, ".so") == 0)) {
         if (_compilerPath.empty()) {
           error.assign("compiler path not set for compiling plugins");
           return nullptr;
@@ -290,7 +291,7 @@ PluginFactory::cleanup()
   std::string     path(RecConfigReadRuntimeDir());
 
   try {
-    if (path.starts_with("/") && std::filesystem::is_directory(path)) {
+    if (!path.empty() && path[0] == '/' && std::filesystem::is_directory(path)) {
       for (const auto &entry : std::filesystem::directory_iterator(path, ec)) {
         if (entry.is_directory()) {
           std::string dir_name   = entry.path().string();

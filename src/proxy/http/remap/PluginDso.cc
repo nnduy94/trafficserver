@@ -95,12 +95,15 @@ PluginDso::load(std::string &error, const fs::path &compilerPath)
 
     std::error_code ec;
 
-    if (!_effectivePath.string().ends_with(".so")) {
+    auto const &effective = _effectivePath.string();
+    auto const &runtime   = _runtimePath.string();
+
+    if (!(effective.size() >= 3 && effective.compare(effective.size() - 3, 3, ".so") == 0)) {
       if (!isDynamicReloadEnabled()) {
         concat_error(error, "Dynamic reload must be enabled for Cript files");
         result = false;
       } else {
-        std::string command = compilerPath.string() + " " + _effectivePath.string() + " " + _runtimePath.string();
+        std::string command = compilerPath.string() + " " + effective + " " + runtime;
 
         if (std::system(command.c_str()) != 0) {
           concat_error(error, "Compile script failed");
