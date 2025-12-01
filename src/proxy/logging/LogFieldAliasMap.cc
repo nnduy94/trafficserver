@@ -39,6 +39,8 @@ LogFieldAliasTable::init(size_t numPairs, ...)
 
   if (m_table) {
     delete[] m_table;
+    m_table   = nullptr;
+    m_entries = 0;
   }
 
   size_t  n;
@@ -72,11 +74,12 @@ LogFieldAliasTable::init(size_t numPairs, ...)
   for (n = 0; n < numPairs; n++) {
     IntType val  = va_arg(ap, int);
     size_t  i    = val - m_min;
-    char   *name = va_arg(ap, char *);
+        char   *name = va_arg(ap, char *);
 
-    m_table[i].name   = ats_strdup(name);
-    m_table[i].length = strlen(name);
-    m_table[i].valid  = true;
+        m_table[i].name   = ats_strdup(name);
+        m_table[i].length = strlen(name);
+        m_table[i].valid  = true;
+        m_table[i].owned  = true;
   }
 
   va_end(ap);

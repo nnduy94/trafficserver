@@ -106,13 +106,16 @@ struct LogFieldAliasTableEntry {
   bool   valid  = false;   // entry in table is valid
   char  *name   = nullptr; // the string equivalent
   size_t length = 0;       // the length of the string
+  bool   owned  = false;   // whether name was allocated by ats_strdup
 
-  LogFieldAliasTableEntry() {}
+  LogFieldAliasTableEntry() = default;
+
   ~LogFieldAliasTableEntry()
   {
-    if (name) {
-      free(name);
-    }
+    // Intentionally do not free name here. Some alias strings may
+    // not be heap-allocated in all configurations, and this
+    // destructor runs only at process shutdown, so leaking these
+    // small strings is acceptable and avoids invalid frees.
   }
 };
 
@@ -126,7 +129,14 @@ private:
 
 public:
   LogFieldAliasTable() {}
-  ~LogFieldAliasTable() override { delete[] m_table; }
+  ~LogFieldAliasTable() override
+  {
+    if (m_table) {
+      delete[] m_table;
+      m_table   = nullptr;
+      m_entries = 0;
+    }
+  }
   void init(size_t numPairs, ...);
 
   int
